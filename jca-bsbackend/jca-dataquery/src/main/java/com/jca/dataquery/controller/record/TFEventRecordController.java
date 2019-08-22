@@ -137,12 +137,11 @@ public class TFEventRecordController {
 	@RequestMapping(value = "/countRecordInfo", produces = "application/json;charset=UTF-8")
 	public Result countRecordInfo(HttpServletRequest request,
 			@ApiParam(value = "条件类型如 当天1,本周2,本月3") @RequestParam(value = "type", required = false) String type,
-			@ApiParam("物业名称") @RequestParam(value = "propertyName", required = false) String propertyName) {
+			@ApiParam("物业名称") @RequestParam(value = "propertyNo", required = false) String propertyNo) {
 		try {
-			long start = System.currentTimeMillis();
-			Map<String, Object> map = tFEventRecordService.countRecordInfo(type, propertyName);
-			long end = System.currentTimeMillis();
-			log.info("耗时==>" + (end - start));
+			if(StringUtils.isEmpty(type)||StringUtils.isEmpty(propertyNo))
+				propertyNo="全部";type=String.valueOf(3);
+			Map<String, Object> map = tFEventRecordService.countRecordInfo(type, propertyNo);
 			return Result.success("查询成功").withData(map);
 		} catch (Exception e) {
 			log.error("异常==>", e);

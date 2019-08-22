@@ -45,7 +45,7 @@ public class SelectSQLProvider {
 		} else if (type.equals("3")) {
 			type = " AND DATE_FORMAT( fe.record_date_time, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' )";
 		} else {
-			type = " 1=1 ";
+			type = "and 1=1 ";
 		}
 		String condition = (StringUtils.isEmpty(propertyNo) ? ""
 				: (propertyNo.equals("全部") ? "" : ("AND fe.property_name='" + propertyNo + "'")));

@@ -130,6 +130,7 @@ public class TFEventRecordServiceImpl extends BaseServiceImpl<TFEventRecordMappe
 	@Override
 	public Map<String, Object> countRecordInfo(String type, String name) {
 		List<TFArea> areas = tFAreaMapper.countRecordInfo(type, name);
+		
 		String area[] = new String[areas.size()];
 		Integer in[] = new Integer[areas.size()];
 		Integer out[] = new Integer[areas.size()];

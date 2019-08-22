@@ -18,51 +18,58 @@
 		fd.is_down AS isDown,
 		fd.create_by AS createBy,
 		fd.create_time AS createTime,
-		fd.update_by AS updateBy,
+		fd.update_by AS
+		updateBy,
 		fd.update_time AS updateTime
 		FROM
-		t_f_department fd,t_f_property fp
+		t_f_department
+		fd,t_f_property fp
 		WHERE fp.property_no=fd.property_no
-		<if test="ids != null and ids !=''">
+		<if test="ids != null and ids !=">
 			and fd.department_id in
 			<foreach collection="ids" item="id" open="(" separator=","
 				close=")">
 				#{id}
 			</foreach>
 		</if>
-		<if test="name != null and name !=''">
+		<if test="name != null and name !=">
 			and fp.property_no=#{name}
 		</if>
 		order by fd.create_time desc
 	</select>
-	<resultMap type="TFDepartment" id="TFDepartmentMap" autoMapping="true">
+	<resultMap type="TFDepartment" id="TFDepartmentMap"
+		autoMapping="true">
 		<collection property="infos" ofType="TFEmployInfo" column="dTempNo"
 			select="findEmpInfo" autoMapping="true">
 		</collection>
 	</resultMap>
 	<select id="findEmpInfo" resultType="TFEmployInfo">
 		SELECT
-		fe.employ_id AS employId,
+		fe.employ_id AS
+		employId,
 		fe.employ_no AS employNo,
 		fe.employ_name AS employName,
 		fe.room_no AS roomNo,
-		(SELECT	department_name FROM t_f_department d WHERE 1=1 AND
+		(SELECT department_name FROM t_f_department d
+		WHERE 1=1 AND
 		d.department_no=fe.department_no) AS departmentName,
 		fe.area_no AS areaNo,
 		fe.secret_key AS secretKey,
 		fe.card_no AS cardNo,
 		fe.id_card_no AS idCardNo,
-		fe.sex,fe.photo AS photo,fe.photo_state AS	photoState,
+		fe.sex,fe.photo AS photo,fe.photo_state AS
+		photoState,
 		fe.telephone,fe.nation,fe.birth_place AS birthPlace,
 		fe.property_no AS propertyNo,
 		fe.begin_datetime AS beginDatetime,
-		fe.end_datetime AS	endDatetime,
+		fe.end_datetime AS endDatetime,
 		fp.property_name AS propertyName,
 		fe.is_submarine_back AS isSubmarineBack,
 		fe.is_present AS isPresent,
 		fe.is_down AS isDown,
 		fe.create_by AS createBy,
-		fe.create_time AS createTime,
+		fe.create_time AS
+		createTime,
 		fe.update_by AS updateBy,
 		fe.update_time AS updateTime
 		FROM
@@ -70,4 +77,39 @@
 		WHERE fp.property_no=fe.property_no
 		and fe.department_no=#{dTempNo}
 	</select>
+
+	<insert id="insertDepInfo" parameterType="TFDepartment">
+		INSERT INTO t_f_department (
+		department_no,
+		department_name,
+		parent_no,
+		property_no,
+		room_no,
+		telephone,
+		principal,
+		is_down,
+		create_by,
+		create_time
+		)
+		VALUES
+		(
+		(SELECT
+		CASE
+		WHEN MAX(d.department_no) IS NULL
+		THEN 1
+		ELSE MAX(d.department_no) + 1
+		END MaxOperatorNO
+		FROM
+		t_f_department d),
+		#{departmentName},
+		#{parentNo},
+		#{propertyNo},
+		#{roomNo},
+		#{telephone},
+		#{principal},
+		#{isDown},
+		#{createBy},
+		#{createTime}
+		) 
+	</insert>
 </mapper>

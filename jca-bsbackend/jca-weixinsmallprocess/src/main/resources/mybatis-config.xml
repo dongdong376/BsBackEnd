@@ -52,5 +52,6 @@
     <mappers>
     	<mapper resource="com/jca/datadao/mapperxml/TFOperatorMapper.xml"/>
     	<mapper resource="com/jca/datadao/mapperxml/TDEmployinfoMapper.xml"/>
+    	<mapper resource="com/jca/datadao/mapperxml/TFVisitorMapper.xml"/>
     </mappers>
 </configuration>

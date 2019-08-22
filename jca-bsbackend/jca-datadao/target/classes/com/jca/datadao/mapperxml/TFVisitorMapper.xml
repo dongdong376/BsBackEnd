@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jca.datadao.TFVisitorMapper">
+	<select id="selectAllVisitorRecord" resultMap="TFVisitorMap">
+		SELECT
+		visitor_id
+		as visitorId,
+		visitor_name as visitorName,
+		check_no as checkNo,
+		check_date as checkDate,
+		check_state as checkState,
+		visitor_reason as visitorReason,
+		people_by_visiting_id as peopleByVisitingId,
+		visotor_telephone as visotorTelephone,
+		visitor_card_no as
+		visitorCardNo,
+		begin_date as beginDate,
+		end_date as endDate
+		FROM
+		t_f_visitor fv,t_f_employ_info fe,t_f_employ_info fec
+		where fv.people_by_visiting_id=fe.employ_no
+		and fec.employ_no=fv.check_no
+		<if test="param.propertyNo != null and param.propertyNo !=''">
+			and fe.property_no=#{param.propertyNo}
+		</if>
+		<!-- 单个条件 -->
+		<if test="param.visitorId != null and param.visitorId !=''">
+			and fv.visitor_id=#{param.visitorId}
+		</if>
+		<!-- 查询条件开始 -->
+		<if test="param.visitorName != null and param.visitorName !=''">
+			and fv.visitor_name=#{param.visitorName}
+		</if>
+		<if test="param.visotorTelephone != null and param.visotorTelephone !=''">
+			and fv.visotor_telephone=#{param.visotorTelephone}
+		</if>
+		<if test="param.employName != null and param.employName !=''">
+			and fe.employ_name=#{param.employName}
+		</if>
+		<if test="param.visitorId != null and param.visitorId !=''">
+			and fv.visitor_id=#{param.visitorId}
+		</if>
+		<if test="param.employNo != null and param.employNo !=''">
+			and fec.employ_no=#{param.employNo}
+		</if>
+		<!-- <if test="param.propertyNo != null and param.propertyNo !=''">
+			and fe.property_no=#{param.propertyNo}
+		</if>
+		<if test="param.visitorId != null and param.visitorId !=''">
+			and fv.visitor_id=#{param.visitorId}
+		</if> -->
+		<!-- 查询条件结束 -->
+		LIMIT 0, 1000 ;
+	</select>
+	<resultMap id="TFVisitorMap" type="TFVisitor">
+		<association property="employInfo" javaType="TFEmployInfo"
+			autoMapping="true" fetchType="lazy" column="peopleByVisitingId"
+			select="selectBypeople" />	
+			<association property="checkEmpInfo" javaType="TFEmployInfo"
+			autoMapping="true" fetchType="lazy" column="checkNo"
+			select="selectCheckpeople" />			
+	</resultMap>
+	<select id="selectBypeople" resultType="TFEmployInfo" parameterType="String">
+		SELECT
+		employ_id as	employId,
+		employ_no as employNo,
+		employ_name as	employName,
+		organ_name as	organName,
+		room_no as roomNo,
+		(select
+		department_name from t_f_department
+		fd where 1=1 and
+		fd.department_no=fe.department_no) as departmentName,
+		department_no as departmentNo,
+		area_no as areaNo,
+		fe.secret_key as	secretKey,
+		card_no as cardNo,
+		id_card_no as idCardNo,
+		sex,
+		photo as photo,
+		photo_state as photoState,
+		fe.telephone,
+		nation,
+		birth_place	as	birthPlace,
+		fe.property_no as propertyNo,
+		fp.property_name as	propertyName,
+		begin_datetime as	beginDatetime,
+		end_datetime as	endDatetime,
+		is_submarine_back as	isSubmarineBack,
+		is_present as	isPresent,
+		fe.is_down as isDown,
+		fe.create_by as	createBy,
+		fe.create_time	as	createTime,
+		fe.update_by as updateBy,
+		fe.update_time as	updateTime
+		FROM
+		t_f_employ_info fe,t_f_property fp
+		where fe.property_no=fp.property_no
+			and employ_no=#{peopleByVisitingId}
+	</select>	
+	
+	<select id="selectCheckpeople" resultType="TFEmployInfo" parameterType="String">
+		SELECT
+		employ_id as	employId,
+		employ_no as employNo,
+		employ_name as	employName,
+		organ_name as	organName,
+		room_no as roomNo,
+		(select
+		department_name from t_f_department
+		fd where 1=1 and
+		fd.department_no=fe.department_no) as departmentName,
+		department_no as departmentNo,
+		area_no as areaNo,
+		fe.secret_key as	secretKey,
+		card_no as cardNo,
+		id_card_no as idCardNo,
+		sex,
+		photo as photo,
+		photo_state as photoState,
+		fe.telephone,
+		nation,
+		birth_place	as	birthPlace,
+		fe.property_no as propertyNo,
+		fp.property_name as	propertyName,
+		begin_datetime as	beginDatetime,
+		end_datetime as	endDatetime,
+		is_submarine_back as	isSubmarineBack,
+		is_present as	isPresent,
+		fe.is_down as isDown,
+		fe.create_by as	createBy,
+		fe.create_time	as	createTime,
+		fe.update_by as updateBy,
+		fe.update_time as	updateTime
+		FROM
+		t_f_employ_info fe,t_f_property fp
+		where fe.property_no=fp.property_no
+			and employ_no=#{checkNo}
+	</select>			
+</mapper>

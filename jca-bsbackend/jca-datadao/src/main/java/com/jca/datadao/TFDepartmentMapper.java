@@ -13,4 +13,5 @@ public interface TFDepartmentMapper extends BaseSqlProvider<TFDepartment> {
 	@DeleteProvider(type=DeleteSQLProvider.class,method="deleteRoleByArray")
 	Integer removeDepInfo(@Param("paramIds")String[] paramIds);
 	List<TFDepartment> findDepInfo(@Param("ids")String []ids,@Param("name")String name);
+	Integer insertDepInfo(TFDepartment department);
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.Page;
 import com.jca.databeans.pojo.TFDepartment;
@@ -25,15 +26,16 @@ public class TFDepartmentServiceImpl extends BaseServiceImpl<TFDepartmentMapper,
 	@Resource
 	private TFDepartmentMapper tFDepartmentMapper;
 	
-	//@MethodLog(value="添加部门")
+	@Transactional
+	@MethodLog(value="添加部门")
 	@Override
 	public TFDepartment save(TFDepartment e) {
-		Integer result = tFDepartmentMapper.insert(e);
+		Integer result = tFDepartmentMapper.insertDepInfo(e);
 		if (result > 0)
 			return tFDepartmentMapper.selectOneByCriteria(e);
 		return null;
 	}
-	//@MethodLog("修改部门")
+	@MethodLog("修改部门")
 	@Override
 	public TFDepartment updateById(TFDepartment e) {
 		Integer result = tFDepartmentMapper.updateByPrimaryKeySelective(e);
@@ -70,7 +72,7 @@ public class TFDepartmentServiceImpl extends BaseServiceImpl<TFDepartmentMapper,
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	@MethodLog("所有部门信息")
 	@Override
 	public List<TFDepartment> listByCondition(TFDepartment e) {
 		return tFDepartmentMapper.findDepInfo(null, e.getPropertyNo());
@@ -81,7 +83,7 @@ public class TFDepartmentServiceImpl extends BaseServiceImpl<TFDepartmentMapper,
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	@MethodLog("查询单个")
 	@Override
 	public TFDepartment getById(Integer id) {
 		// TODO Auto-generated method stub
@@ -93,7 +95,7 @@ public class TFDepartmentServiceImpl extends BaseServiceImpl<TFDepartmentMapper,
 		// TODO Auto-generated method stub
 		return tFDepartmentMapper.selectOneByCriteria(e);
 	}
-	//@MethodLog(value="移除部门")
+	@MethodLog(value="移除部门")
 	@Override
 	public Result removeDepInfo(String[] ids) throws Exception {
 		StringBuilder sb = new StringBuilder();

@@ -58,7 +58,7 @@ public class ClassGenerator {
                 }
                 Field field = new Field();
                 field.setDataBaseFieldName(columnName);
-                field.setFieldName(lowerFirstLetter(columnName));
+                field.setFieldName(dealFieledName(columnName));
                 field.setFieldType(columnTypeToFieldType(typeName));
                 field.setFieldRemarks(remarks);
                 field.setFieldNameUpperFirstLetter(upperFirstLetter(columnName));

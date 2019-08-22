@@ -9,6 +9,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,7 +58,6 @@ public class TFDepartmentController {
 	 * @return
 	 */
 	@ApiOperation(value = "当前物业下所有机构信息", protocols = "HTTP", produces = "application/json;charset=UTF-8")
-	//@MethodLog(value = "当前物业下所有机构信息")
 	@RequestMapping(value = "/AllDepInfo", produces = "application/json;charset=UTF-8")
 	public Result AllDepInfo(HttpServletRequest request, @RequestParam(required = false) String propertyVo) {
 		Long start = System.currentTimeMillis();
@@ -125,16 +125,17 @@ public class TFDepartmentController {
 	}
 
 	/**
-	 * 
+	 * 添加
 	 * @param request
+	 * @param departmentVoJson
+	 * @param token
 	 * @return
 	 */
 	@ApiOperation(value = "添加机构部门信息", protocols = "HTTP", produces = "application/json;charset=UTF-8")
-	//@MethodLog(value = "添加机构部门信息")
 	@RequestMapping(value = "/addDepInfo", produces = "application/json;charset=UTF-8")
-	public Result addDepInfo(HttpServletRequest request, @RequestParam("json") String departmentVoJson) {
-		Long start = System.currentTimeMillis();
-		String usertoken = request.getHeader("usertoken");
+	public Result addDepInfo(HttpServletRequest request, @RequestParam("json") String departmentVoJson,
+			@RequestParam(required = false) String token) {
+		String usertoken = StringUtils.isEmpty(request.getHeader("usertoken")) ? token : request.getHeader("usertoken");
 		if (EmptyUtils.isEmpty(usertoken))
 			return Result.error("无token!");
 		TFOperator operator = validationToken.getCurrentUser(usertoken);
@@ -146,9 +147,8 @@ public class TFDepartmentController {
 			e = BeanUtils.copyProperties(departmentVo, TFDepartment.class);
 			// 是否为高级
 			e.setParentNo(EmptyUtils.isEmpty(departmentVo.getParentNo()) ? "0" : departmentVo.getParentNo());
-			e.setCreateBy(operator.getOperatorId().toString());
-			// 生成指定位数的UUID最为编号
-			e.setDepartmentNo(UUIDUtils.generateUUID(5));
+			e.setCreateBy(operator.getOperatorName());
+			e.setIsDown(1);
 			e.setPropertyNo(request.getParameter("propertyNo"));
 			e.setCreateTime(DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
 			if (EmptyUtils.isNotEmpty(tFDepartmentService.getByCondition(
@@ -157,8 +157,6 @@ public class TFDepartmentController {
 			TFDepartment result = tFDepartmentService.save(e);
 			if (EmptyUtils.isEmpty(result))
 				return Result.error("添加失败!");
-			Long end = System.currentTimeMillis();
-			log.info("耗时==>" + (end - start));
 			return Result.success("添加成功!").withData(result);
 		} catch (ParseException e1) {
 			log.error("异常" + e1.getMessage());
@@ -174,7 +172,6 @@ public class TFDepartmentController {
 	 * @return
 	 */
 	@ApiOperation(value = "修改机构部门信息", protocols = "HTTP", produces = "application/json;charset=UTF-8")
-	//@MethodLog(value = "修改机构部门信息")
 	@RequestMapping(value = "/upDepInfo", produces = "application/json;charset=UTF-8")
 	public Result upDepInfo(HttpServletRequest request, @RequestParam("json") String departmentVoJson) {
 		Long start = System.currentTimeMillis();
@@ -212,7 +209,6 @@ public class TFDepartmentController {
 	 * @return
 	 */
 	@ApiOperation(value = "查看机构部门信息", protocols = "HTTP", produces = "application/json;charset=UTF-8")
-	//@MethodLog(value = "查看机构部门信息")
 	@RequestMapping(value = "/getDepInfo", produces = "application/json;charset=UTF-8")
 	public Result getDepInfo(HttpServletRequest request, @RequestParam("id") Integer id) {
 		Long start = System.currentTimeMillis();
@@ -223,7 +219,6 @@ public class TFDepartmentController {
 	}
 
 	@ApiOperation(value = "删除机构部门信息", protocols = "HTTP", produces = "application/json;charset=UTF-8")
-	//@MethodLog(value = "删除机构部门信息")
 	@RequestMapping(value = "/removeDepInfo", produces = "application/json;charset=UTF-8")
 	public Result removeDepInfo(HttpServletRequest request, @RequestParam("ids") String idsParam) {
 		Long start = System.currentTimeMillis();
