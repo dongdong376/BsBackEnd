@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jca.datadao.TFDeviceMapper">
+	<!-- 查询所有设备信息 -->
+	<select id="findAllDevice" resultMap="TFDeviceMap"
+		parameterType="map">
+		SELECT
+		face_id AS	faceId,fd.face_no AS faceNo,face_name AS faceName,
+		(SELECT area_name FROM t_f_area fa WHERE fa.area_no=fd.area_no) AS areaName,
+		fd.area_no AS areaNo,pc_no AS pcNo,fd.area_no AS tempDeviceAreaNo,
+		fd.secret_key AS secretKey,face_ip AS faceIp,
+		face_mac AS faceMac,face_netmark AS	faceNetmark,
+		face_in_out AS faceInOut,is_online	AS	isOnline,state,face_firm AS faceFirm,
+		face_platform AS facePlatform,face_system AS faceSystem,face_version AS faceVersion,
+		remarks AS remarks,fd.is_down AS isDown,fd.create_by AS createBy,
+		fd.create_time AS createTime,fd.update_by AS updateBy,fd.update_time
+		AS updateTime,fd.property_no AS propertyNo
+		FROM
+		t_f_device fd
+		where 1=1
+		<if test="param.propertyNo !=null and param.propertyNo !='-1'">
+			and property_no=#{param.propertyNo}
+		</if>
+		<if test="param.areaNo !=null and param.areaNo !='-1'">
+			and fd.area_no=#{param.areaNo}
+		</if>
+		order by
+		fd.face_no
+	</select>
+	<!-- 查询单个设备 -->
+	<select id="getOneDevice" resultMap="TFDeviceMap" parameterType="String">
+		SELECT
+		face_id AS	faceId,face_no AS faceNo,face_name AS faceName,
+		area_no AS	areaNo,pc_no AS pcNo,area_no as tempDeviceAreaNo,
+		secret_key AS secretKey,face_ip AS	faceIp,
+		face_mac AS	faceMac,face_netmark AS faceNetmark,
+		face_in_out AS	faceInOut,is_online
+		AS isOnline,state,face_firm AS faceFirm,
+		face_platform AS facePlatform,face_system AS faceSystem,
+		face_version AS	faceVersion,
+		remarks AS remarks,is_down AS isDown,create_by AS	createBy,
+		create_time AS createTime,update_by AS updateBy,
+		update_time	AS	updateTime,property_no AS propertyNo
+		FROM
+		t_f_device fd
+		where
+		face_no=#{faceNo}
+	</select>
+	<!-- 梳理映射关系 -->
+	<resultMap type="TFDevice" id="TFDeviceMap" autoMapping="true">
+		<!-- 建立一对一关系 -->
+		<association property="property" javaType="TFProperty"
+			autoMapping="true" fetchType="lazy" select="selectPropertyList"
+			column="propertyNo">
+			<id property="propertyId" column="property_id" />
+		</association>
+		<association property="area" javaType="TFArea" fetchType="lazy"
+			select="getArea" column="tempDeviceAreaNo">
+		</association>
+	</resultMap>
+
+	<select id="getArea" resultType="TFArea">
+		SELECT
+		area_id AS areaId,
+		area_name AS areaName,
+		area_parent_no	AS areaParentNo,
+		province AS province,
+		city AS city,
+		(SELECT	property_name FROM t_f_property fp WHERE
+		fp.secret_key=fa.secret_key) AS propertyNo,
+		attributes AS attributes,
+		address AS address,
+		secret_key	AS secretKey,
+		is_down AS isDown,
+		create_by AS createBy,
+		create_time AS	createTime,
+		update_by AS updateBy,
+		update_time AS updateTime
+		FROM
+		t_f_area fa WHERE 1=1 and area_no=#{tempDeviceAreaNo}
+	</select>
+
+	<resultMap type="TFPropertyGroup" id="TFPropertyGroupMap">
+		<collection property="properties" ofType="TFProperty"
+			column="propertyNo" fetchType="lazy" select="selectPropertyList" />
+	</resultMap>
+	<!-- 查询物业 -->
+	<select id="selectPropertyList" resultType="TFProperty">
+		SELECT
+		property_id
+		as
+		propertyId,
+		property_no as propertyNo,
+		property_name as
+		propertyName,
+		secret_key as secretKey,
+		contacts as contacts,
+		telephone as telephone,
+		address as address,
+		is_down as isDown,
+		property_group_no as
+		propertyGroupNo,
+		province as province,
+		city
+		as city,
+		district as district,
+		create_by as createBy,
+		create_time
+		as createTime,
+		update_by as updateBy,
+		update_time as updateTime
+		FROM
+		t_f_property where
+		property_no=#{propertyNo}
+	</select>
+	<!-- 查询设备信息 -->
+	<select id="selectDevice" resultMap="TFPropertyGroupMap">
+		SELECT
+		property_group_id as
+		propertyGroupid,
+		property_group_no as propertyGroupNo,
+		property_group_name as propertyGroupName,
+		remarks,
+		create_by as
+		createBy,
+		create_time as createTime,
+		update_by as updateBy,
+		update_time
+		as updateTime
+		FROM
+		t_f_property_group WHERE
+		property_group_no=#{propertyNo}
+	</select>
+
+	<!-- 修改 -->
+	<!-- <![CDATA[ and check_date>=#{beginTime}]]> -->
+	<update id="updateDeviceInfo" parameterType="TFDevice">
+		update t_f_device
+		<set>
+			<trim suffix="," suffixOverrides=",">
+				<if test="TFDevice.faceNo!=null and TFDevice.faceNo!=''">
+					face_no=#{TFDevice.faceNo},
+				</if>
+				<if test="TFDevice.faceName!=null and TFDevice.faceName!=''">
+					face_name=#{TFDevice.faceName},
+				</if>
+				<if test="TFDevice.areaNo!=null and TFDevice.areaNo!=''">
+					area_no=#{TFDevice.areaNo},
+				</if>
+				<if test="TFDevice.pcNo!=null and TFDevice.pcNo!=''">
+					pc_no=#{TFDevice.pcNo},
+				</if>
+				<if test="TFDevice.secretKey!=null and TFDevice.secretKey!=''">
+					secret_key=#{TFDevice.secretKey},
+				</if>
+				<if test="TFDevice.faceIp!=null and TFDevice.faceIp!=''">
+					face_ip=#{TFDevice.faceIp},
+				</if>
+				<if test="TFDevice.faceMac!=null and TFDevice.faceMac!=''">
+					face_max=#{TFDevice.faceMac},
+				</if>
+				<if test="TFDevice.faceNetmark!=null and TFDevice.faceNetmark!=''">
+					face_netmark=#{TFDevice.faceNetmark},
+				</if>
+				<if test="TFDevice.faceInOut!=null and TFDevice.faceInOut!=''">
+					face_in_out=#{TFDevice.faceInOut},
+				</if>
+				<if test="TFDevice.isOnline!=null and TFDevice.isOnline!=''">
+					is_online=#{TFDevice.isOnline},
+				</if>
+				<if test="TFDevice.state!=null and TFDevice.state!=''">
+					state=#{TFDevice.state},
+				</if>
+				<if test="TFDevice.faceFirm!=null and TFDevice.faceFirm!=''">
+					face_firm=#{TFDevice.faceFirm},
+				</if>
+				<if test="TFDevice.facePlatform!=null and TFDevice.facePlatform!=''">
+					face_platform=#{TFDevice.facePlatform},
+				</if>
+				<if test="TFDevice.faceSystem!=null and TFDevice.faceSystem!=''">
+					face_system=#{TFDevice.faceSystem},
+				</if>
+				<if test="TFDevice.faceVersion!=null and TFDevice.faceVersion!=''">
+					face_version=#{TFDevice.faceVersion},
+				</if>
+				<if test="TFDevice.remarks!=null and TFDevice.remarks!=''">
+					remarks=#{TFDevice.remarks},
+				</if>
+				<if test="TFDevice.isDown!=null">
+					is_down=#{TFDevice.isDown},
+				</if>
+				<if test="TFDevice.createBy!=null and TFDevice.createBy!=''">
+					create_by=#{TFDevice.createBy},
+				</if>
+				<if test="TFDevice.createTime!=null and TFDevice.createTime!=''">
+					create_time=#{TFDevice.createTime},
+				</if>
+				<if test="TFDevice.updateBy!=null and TFDevice.updateBy!=''">
+					update_by=#{TFDevice.updateBy},
+				</if>
+				<if test="TFDevice.updateTime!=null and TFDevice.updateTime!=''">
+					update_time=#{TFDevice.updateTime},
+				</if>
+				<if test="TFDevice.propertyNo!=null and TFDevice.propertyNo!=''">
+					property_no=#{TFDevice.propertyNo},
+				</if>
+			</trim>
+		</set>
+		where face_no=#{TFDevice.faceNo}
+	</update>
+	<!-- 删除 -->
+	<delete id="removeDeviceByArray" parameterType="list">
+		delete from t_f_device where face_no in
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+</mapper>
+

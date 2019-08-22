@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jca.datadao.TFEmployInfoMapper">
+	<!-- 查询所有设备区域信息 -->
+	<select id="findAllEmpInfo" resultType="TFEmployInfo"
+		parameterType="TFEmployInfo">
+		SELECT
+		employ_id as employId,
+		employ_no as employNo,
+		employ_name as	employName,
+		organ_name as organName,
+		room_no as roomNo,
+		(select
+		department_name from t_f_department fd where 1=1 and
+		fd.department_no=fe.department_no) as departmentNo,
+		area_no as areaNo,
+		fe.secret_key as secretKey,
+		card_no as cardNo,
+		id_card_no as idCardNo,
+		sex,photo as photo,
+		photo_state as photoState,
+		fe.telephone,nation,
+		birth_place	as	birthPlace,
+		fe.property_no as propertyNo,
+		fp.property_name as propertyName,
+		begin_datetime as beginDatetime,
+		end_datetime as	endDatetime,
+		is_submarine_back as isSubmarineBack,
+		is_present as	isPresent,
+		fe.is_down as isDown,
+		fe.create_by as	createBy,
+		fe.create_time	as	createTime,
+		fe.update_by as updateBy,
+		fe.update_time as	updateTime
+		FROM	t_f_employ_info fe,t_f_property fp
+		where fe.is_down=1 and
+		fe.property_no=fp.property_no 
+		<if test="emp.propertyNo != null and emp.propertyNo !='-1'">
+			and	fp.property_no=#{emp.propertyNo}
+		</if>
+		<if test="emp.departmentNo !=null and emp.departmentNo!=''">
+			and fe.department_no IN
+			(
+			SELECT fd.department_no FROM
+			t_f_department fd
+			WHERE fd.department_no=fe.department_no AND
+			fd.department_name like
+			'%${emp.departmentNo}%'
+			)
+		</if>
+		<if test="emp.employNo !=null and emp.employNo !=''">
+			or fe.employ_no like '%${emp.employNo}%'
+		</if>
+		<if test="emp.employName !=null and emp.employName !=''">
+			or fe.employ_name like '%${emp.employName}%'
+		</if>
+		<if test="emp.beginDatetime !=null and emp.beginDatetime !=''">
+			or fe.begin_datetime like '%${emp.employName}%'
+		</if>
+		<if test="emp.endDatetime !=null and emp.endDatetime !=''">
+			or fe.end_datetime like '%${emp.endDatetime}%'
+		</if>
+		<if test="emp.cardNo !=null and emp.cardNo !=''">
+			or fe.card_no like '%${emp.cardNo}%'
+		</if>
+		<if test="emp.isSubmarineBack !=null and emp.isSubmarineBack !=''">
+			or fe.is_submarine_back = #{emp.isSubmarineBack}
+		</if>
+		<if test="emp.photoState !=null and emp.photoState !=''">
+			or fe.photo_state = #{emp.photoState}
+		</if>
+		order by fe.employ_id desc
+	</select>
+
+	<select id="getOneEmpInfo" resultType="TFEmployInfo">
+		SELECT
+		employ_id as	employId,
+		employ_no as employNo,
+		employ_name as	employName,
+		organ_name as	organName,
+		room_no as roomNo,
+		(select
+		department_name from t_f_department
+		fd where 1=1 and
+		fd.department_no=fe.department_no) as departmentName,
+		department_no as departmentNo,
+		area_no as areaNo,
+		fe.secret_key as	secretKey,
+		card_no as cardNo,
+		id_card_no as idCardNo,
+		sex,
+		photo as photo,
+		photo_state as photoState,
+		fe.telephone,
+		nation,
+		birth_place	as	birthPlace,
+		fe.property_no as propertyNo,
+		fp.property_name as	propertyName,
+		begin_datetime as	beginDatetime,
+		end_datetime as	endDatetime,
+		is_submarine_back as	isSubmarineBack,
+		is_present as	isPresent,
+		fe.is_down as isDown,
+		fe.create_by as	createBy,
+		fe.create_time	as	createTime,
+		fe.update_by as updateBy,
+		fe.update_time as	updateTime
+		FROM
+		t_f_employ_info fe,t_f_property fp
+		where employ_id=#{employId} and
+		fe.property_no=fp.property_no
+	</select>
+
+	<!-- <![CDATA[ and check_date>=#{beginTime}]]> -->
+	<update id="updateTFEmployInfoInfo" parameterType="TFEmployInfo">
+		update t_f_employ_info
+		<set>
+			<trim suffix="," suffixOverrides=",">
+				<if test="TFEmployInfo.employNo!=null and TFEmployInfo.employNo!=''">
+					employ_no=#{TFEmployInfo.employNo},
+				</if>
+				<if test="TFEmployInfo.employName!=null and TFEmployInfo.employName!=''">
+					employ_name=#{TFEmployInfo.employName},
+				</if>
+				<if test="TFEmployInfo.roomNo!=null and TFEmployInfo.roomNo!=''">
+					room_no=#{TFEmployInfo.roomNo},
+				</if>
+				<if
+					test="TFEmployInfo.departmentNo!=null and TFEmployInfo.departmentNo!=''">
+					department_no=#{TFEmployInfo.departmentNo},
+				</if>
+				<if test="TFEmployInfo.cardNo!=null and TFEmployInfo.cardNo!=''">
+					card_no=#{TFEmployInfo.cardNo},
+				</if>
+				<if test="TFEmployInfo.idCardNo!=null and TFEmployInfo.idCardNo!=''">
+					id_card_no=#{TFEmployInfo.idCardNo},
+				</if>
+				<if test="TFEmployInfo.sex!=null and TFEmployInfo.sex!=''">
+					sex=#{TFEmployInfo.sex},
+				</if>
+				<if test="TFEmployInfo.photo!=null and TFEmployInfo.photo!=''">
+					photo=#{TFEmployInfo.photo},
+				</if>
+				<if test="TFEmployInfo.photoState!=null and TFEmployInfo.photoState!=''">
+					photo_state=#{TFEmployInfo.photoState},
+				</if>
+				<if test="TFEmployInfo.telephone!=null and TFEmployInfo.telephone!=''">
+					telephone=#{TFEmployInfo.telephone},
+				</if>
+				<if test="TFEmployInfo.nation!=null and TFEmployInfo.nation!=''">
+					nation=#{TFEmployInfo.nation},
+				</if>
+				<if test="TFEmployInfo.birthPlace!=null and TFEmployInfo.birthPlace!=''">
+					birth_place=#{TFEmployInfo.birthPlace},
+				</if>
+				<if
+					test="TFEmployInfo.beginDatetime!=null and TFEmployInfo.beginDatetime!=''">
+					begin_datetime=#{TFEmployInfo.beginDatetime},
+				</if>
+				<if
+					test="TFEmployInfo.endDatetime!=null and TFEmployInfo.endDatetime!=''">
+					end_datetime=#{TFEmployInfo.endDatetime},
+				</if>
+				<if
+					test="TFEmployInfo.isSubmarineBack!=null and TFEmployInfo.isSubmarineBack!=''">
+					is_submarine_back=#{TFEmployInfo.isSubmarineBack},
+				</if>
+				<if test="TFEmployInfo.isPresent!=null and TFEmployInfo.isPresent!=''">
+					is_present=#{TFEmployInfo.isPresent},
+				</if>
+				<if test="TFEmployInfo.isDown!=null and TFEmployInfo.isDown!=''">
+					is_down=#{TFEmployInfo.isDown},
+				</if>
+				<if test="TFEmployInfo.createBy!=null and TFEmployInfo.createBy!=''">
+					create_by=#{TFEmployInfo.createBy},
+				</if>
+				<if test="TFEmployInfo.createTime!=null and TFEmployInfo.createTime!=''">
+					create_time=#{TFEmployInfo.createTime},
+				</if>
+				<if test="TFEmployInfo.updateBy!=null and TFEmployInfo.updateBy!=''">
+					update_by=#{TFEmployInfo.updateBy},
+				</if>
+				<if test="TFEmployInfo.updateTime!=null and TFEmployInfo.updateTime!=''">
+					update_time=#{TFEmployInfo.updateTime},
+				</if>
+			</trim>
+		</set>
+		where 1=1 <!-- and create_by=#{TFEmployInfo.createBy}, -->
+	</update>
+
+	<update id="updateEmpInfo" parameterType="map">
+		update t_f_employ_info set
+		is_down=0,update_time=now(),update_by=#{param.userId} where employ_id
+		in
+		<foreach collection="param.ids" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</update>
+	<select id="findDeEmpInfo" resultType="TFEmployInfo"
+		parameterType="list">
+		SELECT
+		employ_id as employId, employ_no as employNo,employ_name as
+		employName, organ_name as organName,room_no as roomNo,
+		(select
+		department_name from t_f_department fd where 1=1 and
+		fd.department_no=fe.department_no) as departmentNo,
+		area_no as areaNo,
+		fe.secret_key as secretKey,
+		card_no as cardNo, id_card_no as idCardNo,
+		sex,photo as photo, photo_state as photoState,
+		fe.telephone, nation,
+		fe.property_no as proeprtyNo,
+		birth_place as birthPlace,
+		fp.property_name as propertyName,
+		begin_datetime as
+		beginDatetime,end_datetime as endDatetime,is_submarine_back as
+		isSubmarineBack, is_present as
+		isPresent, fe.is_down as isDown,
+		fe.create_by as createBy,fe.create_time as
+		createTime, fe.update_by as
+		updateBy,
+		fe.update_time as updateTime FROM
+		t_f_employ_info
+		fe,t_f_property fp
+		where fe.employ_id in
+		<foreach collection="ids" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+		and fe.property_no=fp.property_no
+	</select>
+
+	<select id="selectisPresentRecord" resultType="TFEmployInfo">
+		SELECT	 a.is_present AS isPresent,COUNT(0) AS num FROM
+			t_f_employ_info a									
+		<if test="type != null and type == 0">		
+			WHERE a.is_present=0
+		</if>
+		<if test="type != null and type == 1">
+			WHERE a.is_present=1	
+		</if>
+		<if test="name !=null and name !='-1'">
+			AND a.property_no=#{name}
+		</if>
+	</select>
+	
+	<select id="selectEmpInfoByDepOrName" parameterType="map" resultType="TFEmployInfo">
+		SELECT
+		employ_id as employId,
+		employ_no as employNo,
+		employ_name as	employName,
+		organ_name as organName,
+		room_no as roomNo,
+		(select
+		department_name from t_f_department fd where 1=1 and
+		fd.department_no=fe.department_no) as departmentNo,
+		area_no as areaNo,
+		fe.secret_key as secretKey,
+		card_no as cardNo,
+		id_card_no as idCardNo,
+		sex,
+		photo as photo,
+		photo_state as photoState,
+		fe.telephone,
+		nation,
+		birth_place	as	birthPlace,
+		fe.property_no as propertyNo,
+		fp.property_name
+		as propertyName,
+		begin_datetime as beginDatetime,
+		end_datetime as	endDatetime,
+		is_submarine_back as isSubmarineBack,
+		is_present as	isPresent,
+		fe.is_down as isDown,
+		fe.create_by as	createBy,
+		fe.create_time	as	createTime,
+		fe.update_by as updateBy,
+		fe.update_time as	updateTime
+		FROM
+		t_f_employ_info fe,t_f_property fp
+		where fe.is_down=1 and
+		fe.property_no=fp.property_no
+		<if test="param.propertyNo != null and param.propertyNo !='-1'">and fp.property_no=#{param.propertyNo}</if>
+		<if test="param.depNo != null and param.depNo !='-1'">AND fe.department_no=#{param.depNo}</if>
+		<if test="param.empName != null and param.empName != ''">AND fe.employ_name LIKE '%${param.empName}%'</if>		
+	</select>
+</mapper>
+

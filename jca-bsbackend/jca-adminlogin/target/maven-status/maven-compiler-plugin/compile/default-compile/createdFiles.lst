@@ -1,0 +1,12 @@
+com\jca\adminlogin\service\permission\TFMenuPermissionService.class
+com\jca\adminlogin\service\menu\MenuServiceImpl.class
+com\jca\adminlogin\service\permission\TFMenuPermissionServiceImpl.class
+com\jca\adminlogin\controller\AdminLoginController.class
+com\jca\adminlogin\service\AdminService.class
+com\jca\adminlogin\App.class
+com\jca\adminlogin\timejob\SpringContextHolder.class
+com\jca\adminlogin\timejob\ModJobManager.class
+com\jca\adminlogin\service\AdminServiceImpl.class
+com\jca\adminlogin\timejob\TokenJon.class
+com\jca\adminlogin\timejob\QuartzManager.class
+com\jca\adminlogin\service\menu\MenuService.class

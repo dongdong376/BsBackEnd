@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jca.datadao.TFDeviceauthorMapper">
+	<update id="updateAuthor" parameterType="map">
+		update t_f_deviceauthor set is_down=#{param.isDown} where author_id in
+		<foreach collection="param.nos" item="no" open="(" close=")"
+			separator=",">
+			#{no}
+		</foreach>
+	</update>
+	<select id="selectDeviceAuthor" resultType="TFDeviceauthor">
+		SELECT
+		a.author_id AS authorId,
+		a.face_sn AS faceSn,
+		a.employ_no AS employNo,
+		a.author,
+		a.is_download AS isDownload,
+		a.is_down AS isDown,
+		b.id_card_no AS auIdCardNo,
+		a.card_no AS cardNo,
+		b.employ_name AS auEmployName,
+		c.department_name AS auDepartmentName,
+		d.face_name AS auFaceName,
+		e.area_name AS auAreaName,
+		b.begin_datetime AS auBeginDate,
+		b.end_datetime AS auEndDate
+		FROM
+		t_f_deviceauthor a
+		LEFT JOIN t_f_employ_info b ON a.employ_no=b.employ_no
+		LEFT JOIN t_f_department c ON b.department_no=c.department_no
+		LEFT JOIN t_f_device d ON d.face_no=a.face_sn
+		LEFT JOIN t_f_area e ON e.area_no=d.area_no
+		WHERE a.is_down !=2
+		<if test="param.name != null and param.name != ''">
+		 and  d.property_no=#{param.name}
+		</if>
+	</select>
+	<resultMap id="TFDeviceauthorMap" type="TFDeviceauthor">
+		<association property="employInfo" javaType="TFEmployInfo"
+			column="employNo" autoMapping="true" fetchType="lazy" select="selectEmploy">
+			<id property="employNo" column="employ_no" />
+		</association>
+		<association property="device" javaType="TFDevice"
+			autoMapping="true" fetchType="lazy" select="selectDevice" column="faceSn">
+			<id property="departmentId" column="department_id" />
+		</association>
+	</resultMap>
+	<select id="selectEmploy" resultType="TFEmployInfo">
+		SELECT
+		employ_id as
+		employId,
+		employ_no as employNo,
+		employ_name as employName,
+		room_no as
+		roomNo,
+		(select department_name from t_f_department fd where 1=1 and
+		fd.department_no=fe.department_no) as departmentName,
+		department_no as
+		departmentNo,area_no as areaNo,card_no as cardNo,
+		id_card_no as
+		idCardNo, sex,fe.telephone,nation,
+		birth_place as birthPlace,
+		fe.property_no as propertyNo,
+		fp.property_name as propertyName,
+		begin_datetime as beginDatetime,
+		begin_datetime as tempBeginDatetime,
+		end_datetime as endDatetime,
+		end_datetime as tempEndDatetime,
+		is_submarine_back as isSubmarineBack,
+		is_present as isPresent
+		FROM
+		t_f_employ_info fe,t_f_property fp
+		where employ_no=#{employNo} and
+		fe.property_no=fp.property_no
+	</select>
+
+	<select id="selectDevice" resultType="TFDevice">
+		SELECT
+		face_id AS
+		faceId,face_no AS faceNo,face_name AS faceName,
+		area_no AS areaNo,pc_no
+		AS pcNo,secret_key AS secretKey,face_ip AS faceIp,
+		face_in_out AS
+		faceInOut,state,face_platform AS facePlatform,
+		face_system AS
+		faceSystem,face_version AS
+		faceVersion,is_down AS isDown,property_no AS
+		propertyNo
+		FROM
+		t_f_device fd
+		where
+		face_no=#{faceSn}
+	</select>
+	
+</mapper>

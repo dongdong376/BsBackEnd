@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jca.datadao.TFEventRecordMapper">
+	<select id="selectAllRecord" resultMap="TFEventRecordMap"
+		parameterType="TFEventRecord">
+		SELECT
+		event_record_id as eventRecordId,
+		record_date_time as
+		recordDateTime,
+		secret_key as secretKey,
+		employ_no as employNo,
+		employ_name as employName,
+		card_no as cardNo,
+		id_card_no idCardNo,
+		telephone,face_name as faceName,
+		face_no as faceNo,
+		sex,nation,
+		birth_place as birthPlace,
+		room_no as roomNo,
+		department_name AS
+		departmentName,
+		face_no,(SELECT area_name FROM
+		t_f_area fa WHERE
+		fa.area_no=fer.area_name) AS
+		areaName,property_name as propertyName,
+		location,address,face_in_out as faceInOut,
+		record_type as recordType,
+		record_all as recordAll,
+		jpg_path as jpgPath
+		FROM t_f_event_record fer
+		where 1=1
+		<if test="record != null">
+			<if test="record.eventRecordId != null and record.eventRecordId !=0">
+				and event_record_id=#{record.eventRecordId}
+			</if>
+			<if test="record.employName != null and record.employName !=''">
+				and employ_name like '%${record.employName}%'
+			</if>
+			<if test="record.faceInOut != null and record.faceInOut !=0">
+				and face_in_out=#{record.faceInOut}
+			</if>
+			<if test="record.recordType != null and record.recordType !=''">
+				and record_type=#{record.recordType}
+			</if>
+			<if test="record.departmentName != null and record.departmentName !=''">
+				and department_name=#{record.departmentName}
+			</if>
+			<if test="record.propertyName != null and record.propertyName !='全部'">
+				and property_name=#{record.propertyName}
+			</if>
+			<if test="record.employNo != null and record.employNo !=''">
+				and employ_no=#{record.employNo}
+			</if>
+			<if test="record.startDate != null and record.endDate !=null">
+				and DATE(record_date_time) BETWEEN
+				DATE(#{record.startDate}) AND DATE(#{record.endDate})
+			</if>
+		</if>
+	</select>
+
+	<resultMap type="TFEventRecord" id="TFEventRecordMap"
+		autoMapping="true">
+		<association property="department" javaType="TFDepartment"
+			autoMapping="true" fetchType="lazy" select="selectDepartment" column="departmentName">
+			<id property="departmentId" column="department_id" />
+		</association>
+		<association property="tFDevice" javaType="TFDevice"
+			autoMapping="true" fetchType="lazy" select="selectDevice" column="faceNo">
+			<id property="faceId" column="face_id" />
+		</association>
+		<association property="tFEmployInfo" javaType="TFEmployInfo"
+			autoMapping="true" fetchType="lazy" select="selectEmpinfo" column="employNo">
+			<result property="employNo" column="employ_no" />
+		</association>
+		<association property="tFArea" fetchType="lazy" javaType="TFArea"
+			column="areaName" select="selectTfarea" />
+	</resultMap>
+	<!-- 查询部门 -->
+	<select id="selectDepartment" resultType="TFDepartment">
+		SELECT
+		department_id
+		as
+		departmentId,
+		department_no as departmentNo,
+		department_name as
+		departmentName,
+		parent_no as parentNo,
+		room_no as roomNo,
+		telephone,
+		principal,
+		member_num as memberNum,
+		is_down as isDown,
+		create_by as
+		createBy,
+		create_time as
+		createTime,
+		update_by as
+		updateBy,
+		update_time as
+		updateTime
+		FROM
+		jcafaceone.t_f_department
+		where 1=1 and
+		department_no=#{departmentName}
+	</select>
+	<!-- 查询设备 -->
+	<select id="selectDevice" resultType="TFDevice">
+		SELECT
+		face_id AS
+		faceId,face_no AS faceNo,face_name AS faceName,
+		area_no AS
+		areaNo,pc_no
+		AS pcNo,secret_key AS secretKey,face_ip AS faceIp,
+		face_mac AS
+		faceMac,face_netmark AS faceNetmark,
+		face_in_out AS
+		faceInOut,is_online
+		AS isOnline,state,face_firm AS faceFirm,
+		face_platform AS
+		facePlatform,face_system AS faceSystem,face_version AS
+		faceVersion,
+		remarks AS remarks,is_down AS isDown,create_by AS
+		createBy,
+		create_time
+		AS createTime,update_by AS updateBy,update_time
+		AS
+		updateTime,property_no AS propertyNo
+		FROM
+		t_f_device fd
+		where
+		face_no=#{faceNo}
+	</select>
+	<!-- 查询人员 -->
+	<select id="selectEmpinfo" resultType="TFEmployInfo">
+		select photo as
+		photo,employ_no as employNo from t_f_employ_info where
+		employ_no=#{employNo}
+	</select>
+
+	<select id="StrangenessOrResidentSumFlux" resultType="TempEntity">
+		SELECT
+		SUM(temp.todayFlux) as todayFlux,
+		SUM(temp.yesterdayFlux) as
+		yesterdayFlux,
+		SUM(temp.todayResidentFlux) as todayResidentFlux,
+		SUM(temp.yesterdayResidentFlux) as yesterdayResidentFlux,
+		SUM(temp.todayStrangenessFlux) as todayStrangenessFlux,
+		SUM(temp.yesterdayStrangenessFlux) as yesterdayStrangenessFlux,
+		SUM(temp.todayComeFlux) as todayComeFlux,
+		SUM(temp.yesterdayComeFlux)
+		as yesterdayComeFlux
+		FROM
+		(SELECT
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a
+		WHERE a.event_record_id = fer.event_record_id
+		AND
+		DATE(fer.record_date_time) = DATE(NOW())
+		AND fer.record_all LIKE
+		'白名单%') AS todayResidentFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a
+		WHERE a.event_record_id = fer.event_record_id
+		AND DATE(NOW()) -
+		DATE(fer.record_date_time) = 1
+		AND fer.record_all LIKE '白名单%') AS
+		yesterdayResidentFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a
+		WHERE
+		a.event_record_id = fer.event_record_id
+		AND DATE(fer.record_date_time)
+		= DATE(NOW())
+		AND fer.record_all NOT LIKE '白名单%'
+		AND fd.department_name <![CDATA[<>]]>
+		'访客') AS todayStrangenessFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a
+		WHERE a.event_record_id = fer.event_record_id
+		AND DATE(NOW()) -
+		DATE(fer.record_date_time) = 1
+		AND fer.record_all NOT LIKE '白名单%'
+		AND
+		fd.department_name <![CDATA[<>]]>
+		'访客') AS yesterdayStrangenessFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record
+		a
+		WHERE a.event_record_id = fer.event_record_id
+		AND
+		DATE(fer.record_date_time) = DATE(NOW())) AS todayFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a
+		WHERE a.event_record_id =
+		fer.event_record_id
+		AND DATE(NOW()) - DATE(fer.record_date_time) = 1)
+		AS yesterdayFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a
+		WHERE
+		a.event_record_id = fer.event_record_id
+		AND DATE(NOW()) -
+		DATE(fer.record_date_time) = 1
+		AND fd.department_name = '访客') AS
+		yesterdayComeFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a
+		WHERE
+		a.event_record_id = fer.event_record_id
+		AND DATE(fer.record_date_time)
+		= DATE(NOW())
+		AND fd.department_name = '访客') AS todayComeFlux
+		FROM
+		t_f_event_record fer
+		LEFT JOIN t_f_department fd
+		ON fer.department_name
+		= fd.department_no
+		LEFT JOIN t_f_employ_info fei
+		ON fei.employ_no =
+		fer.employ_no
+		WHERE fei.employ_name IS NOT NULL
+		AND fd.department_name
+		IS NOT NULL
+		<if test="name != null and name != '全部'">
+			AND fer.property_name = #{name}
+		</if>
+		ORDER BY fer.record_date_time DESC) temp
+	</select>
+	<select id="selectSumFlux" resultType="TempEntity">
+		SELECT
+		temp.face_in_out AS faceInOut,
+		SUM(temp.todayStrangenessFlux) as
+		todayStrangenessFlux,
+		SUM(temp.todayResidentFlux) as todayResidentFlux,
+		SUM(temp.todayComeFlux) as todayComeFlux
+		FROM
+		(SELECT
+		a.event_record_id,
+		a.record_date_time,
+		a.face_in_out,
+		a.record_all,
+		b.employ_name,
+		c.department_name,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a1
+		WHERE
+		a1.event_record_id = a.event_record_id
+		AND a.record_all not LIKE
+		'白名单%'
+		AND c.department_name <![CDATA[<>]]>
+		'访客') AS todayStrangenessFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a1
+		WHERE a1.event_record_id = a.event_record_id
+		AND a.record_all LIKE
+		'白名单%'
+		AND c.department_name <![CDATA[<>]]>
+		'访客') AS todayResidentFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a1
+		WHERE a1.event_record_id = a.event_record_id
+		AND c.department_name =
+		'访客') AS todayComeFlux
+		FROM
+		t_f_event_record a
+		LEFT JOIN t_f_employ_info
+		b
+		ON a.employ_no = b.employ_no
+		LEFT JOIN t_f_department c
+		ON
+		a.department_name = c.department_no
+		WHERE a.face_in_out = 1
+		<if test="name !=null and name !='全部'">AND a.property_name=#{name}</if>
+		UNION
+		ALL
+		SELECT
+		a.event_record_id, a.record_date_time,
+		a.face_in_out,
+		a.record_all,
+		b.employ_name, c.department_name,
+		(SELECT COUNT(0) FROM
+		t_f_event_record a1
+		WHERE a1.event_record_id = a.event_record_id
+		AND
+		a.record_all not LIKE '白名单%'
+		AND c.department_name <![CDATA[<>]]>
+		'访客') AS todayStrangenessFlux,
+		(SELECT COUNT(0)
+		FROM
+		t_f_event_record a1
+		WHERE a1.event_record_id = a.event_record_id
+		AND a.record_all LIKE
+		'白名单%'
+		AND c.department_name <![CDATA[<>]]>
+		'访客') AS todayResidentFlux,
+		(SELECT
+		COUNT(0)
+		FROM
+		t_f_event_record a1
+		WHERE a1.event_record_id = a.event_record_id
+		AND c.department_name =
+		'访客') AS todayComeFlux
+		FROM
+		t_f_event_record a
+		LEFT JOIN t_f_employ_info
+		b
+		ON a.employ_no = b.employ_no
+		LEFT JOIN t_f_department c
+		ON
+		a.department_name = c.department_no
+		WHERE a.face_in_out = 2
+		<if test="name !=null and name !='全部'">AND a.property_name=#{name}</if>
+		) temp
+		GROUP BY temp.face_in_out
+	</select>
+
+	<select id="updateRecord" resultMap="TFEventRecordMap">
+		SELECT
+		event_record_id as eventRecordId,
+		record_date_time as
+		recordDateTime,
+		record_date_time as tempDate,
+		secret_key as secretKey,
+		employ_no as employNo,
+		employ_name as employName,
+		card_no cardNo,
+		id_card_no idCardNo,
+		telephone,record_states as recordStates,
+		face_name
+		as faceName,
+		face_no as faceNo,
+		sex,
+		area_name as areaName,
+		nation,
+		birth_place as birthPlace,
+		room_no as roomNo,
+		department_name AS
+		departmentName,
+		face_no,
+		property_name as propertyName,
+		location,
+		address,
+		face_in_out
+		as faceInOut,
+		record_type
+		as recordType,
+		record_all as recordAll,
+		jpg_path as jpgPath
+		FROM
+		t_f_event_record fer where 1=1
+		<if test="name != null and name !='全部'">
+			and property_name=#{name}
+		</if>
+		order by record_date_time desc
+		limit 0,20
+	</select>
+
+	<select id="selectRecordDetail" resultMap="TFEventRecordMap">
+		SELECT
+		event_record_id as eventRecordId,
+		record_date_time as
+		recordDateTime,
+		secret_key as secretKey,
+		employ_no as employNo,
+		employ_name as employName,
+		card_no cardNo,
+		id_card_no idCardNo,
+		telephone,
+		face_name as faceName,
+		face_no as faceNo,
+		sex,
+		nation,
+		birth_place as birthPlace,
+		room_no as roomNo,
+		department_name AS
+		departmentName,
+		face_no,
+		(SELECT area_name FROM
+		t_f_area fa WHERE
+		fa.area_no=fer.area_name) AS
+		areaName,
+		property_name as
+		propertyName,
+		location,
+		address,
+		face_in_out as faceInOut,
+		record_type as
+		recordType,
+		record_all as recordAll,
+		jpg_path as jpgPath
+		FROM
+		t_f_event_record fer
+		where DATE_SUB(NOW(), INTERVAL 1 MINUTE) <![CDATA[<=]]>
+		fer.record_date_time
+		<if test="name != null and name !='全部'">
+			property_name=#{name}
+		</if>
+	</select>
+
+	<select id="selectTfarea" resultType="TFArea">
+		SELECT
+		area_id AS areaId,
+		area_no AS areaNo,
+		area_name AS areaName,
+		area_parent_no AS
+		areaParentNo,
+		province AS province,
+		city AS city,
+		(SELECT property_name
+		FROM t_f_property fp WHERE
+		fp.secret_key=fa.secret_key) AS propertyNo,
+		attributes AS attributes,
+		address AS address,
+		secret_key AS secretKey,
+		is_down AS isDown,
+		create_by AS createBy,
+		create_time AS createTime,
+		update_by AS updateBy,
+		update_time AS updateTime
+		FROM
+		t_f_area fa WHERE
+		1=1
+		and area_no=#{areaName}
+	</select>
+
+	<select id="selectCurrentTime" resultType="TFEventRecord">
+		SELECT
+		COUNT(0) as count,a.record_date_time as recordDateTime
+		FROM
+		t_f_event_record a
+		WHERE 1=1 AND DATE_SUB(CURTIME(), INTERVAL 10
+		MINUTE) <![CDATA[<=]]>
+		TIME(a.record_date_time)
+		AND DATE(NOW())=TIME(a.record_date_time)
+		GROUP
+		BY a.face_in_out,a.record_date_time
+		<!-- TIME(fer.record_date_time)=TIME(NOW()) -->
+	</select>
+</mapper>

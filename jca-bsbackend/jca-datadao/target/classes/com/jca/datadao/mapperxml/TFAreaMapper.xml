@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jca.datadao.TFAreaMapper">
+	<select id="findAllArea" resultMap="TFAreaMap" parameterType="map">
+		SELECT
+		area_id AS areaId,
+		fa.area_no AS areaNo,
+		fa.area_no AS tempAreaNo,
+		area_name AS areaName,
+		area_parent_no AS areaParentNo,
+		province AS province,
+		city AS city,
+		(SELECT property_name FROM t_f_property fp WHERE
+		fp.secret_key=fa.secret_key) AS propertyNo,
+		attributes AS attributes,
+		address AS address,
+		secret_key AS secretKey,
+		is_down AS isDown,
+		create_by AS createBy,
+		create_time AS createTime,
+		update_by AS updateBy,
+		update_time AS updateTime
+		FROM	t_f_area fa WHERE 1=1
+		<if test="param.key !=null and param.key !=''">
+			and fa.property_no=#{param.key}
+		</if>
+		<if test="param.areaId !=null and param.areaId !=0">
+			and fa.area_id=#{param.areaId}
+		</if>
+		<if test="param.ids !=null and param.ids !=''">
+			and fa.area_id in
+			<foreach collection="param.ids" item="id" open="(" close=")"
+				separator=",">
+				#{id}
+			</foreach>
+		</if>
+	</select>
+	<resultMap type="TFArea" id="TFAreaMap" autoMapping="true">		
+		<collection property="devices" autoMapping="true"
+			fetchType="lazy" column="tempAreaNo" ofType="TFDevice" select="findDevice">					
+		</collection>
+	</resultMap>
+	<select id="findDevice" resultType="TFDevice">
+		SELECT
+		face_id AS faceId,face_no AS faceNo,face_name AS faceName,
+		pc_no AS pcNo,secret_key AS secretKey,face_ip AS faceIp,
+		face_mac AS	faceMac,face_netmark AS faceNetmark,
+		face_in_out AS faceInOut,is_online
+		AS isOnline,state,face_firm AS faceFirm,
+		face_platform AS facePlatform,face_system AS faceSystem,
+		face_version AS	faceVersion,
+		remarks AS remarks,is_down AS isDown,create_by AS createBy,
+		create_time AS createTime,update_by AS updateBy,
+		update_time AS	updateTime,property_no AS propertyNo
+		FROM t_f_device fd
+		where
+		area_no=#{tempAreaNo}
+	</select>
+	<!-- <![CDATA[ and check_date>=#{beginTime}]]> -->
+	<update id="updateAreaInfo" parameterType="TFArea">
+		update t_f_area
+		<set>
+			<trim suffix="," suffixOverrides=",">
+				<if test="TFArea.areaNo!=null and TFArea.areaNo!=''">
+					area_no=#{TFArea.areaNo},
+				</if>
+				<if test="TFArea.areaParentNo!=null and TFArea.areaParentNo!=''">
+					area_parent_no=#{TFArea.areaParentNo},
+				</if>
+				<if test="TFArea.areaName!=null and TFArea.areaName!=''">
+					area_name=#{TFArea.areaName},
+				</if>
+				<if test="TFArea.propertyNo!=null and TFArea.propertyNo!=''">
+					property_no=#{TFArea.propertyNo},
+				</if>
+				<if test="TFArea.attributes!=null and TFArea.attributes!=''">
+					attributes=#{TFArea.attributes},
+				</if>
+				<if test="TFArea.province!=null and TFArea.province!=''">
+					province=#{TFArea.province},
+				</if>
+				<if test="TFArea.city!=null and TFArea.city!=''">
+					city=#{TFArea.city},
+				</if>
+				<if test="TFArea.district!=null and TFArea.district!=''">
+					district=#{TFArea.district},
+				</if>
+				<if test="TFArea.address!=null and TFArea.address!=''">
+					address=#{TFArea.address},
+				</if>
+				<if test="TFArea.secretKey!=null and TFArea.secretKey!=''">
+					secret_key=#{TFArea.secretKey},
+				</if>
+				<if test="TFArea.isDown!=null and TFArea.isDown!=0">
+					is_down=#{TFArea.isDown},
+				</if>
+				<if test="TFArea.createTime!=null and TFArea.createTime!=''">
+					create_time=#{TFArea.createTime},
+				</if>
+				<if test="TFArea.createBy!=null and TFArea.createBy!=''">
+					create_by=#{TFArea.createBy},
+				</if>
+				<if test="TFArea.updateBy!=null and TFArea.updateBy!=''">
+					update_by=#{TFArea.updateBy},
+				</if>
+				<if test="TFArea.updateTime!=null and TFArea.updateTime!=''">
+					update_time=#{TFArea.updateTime},
+				</if>
+			</trim>
+		</set>
+		where 1=1
+		<if test="TFArea.areaId!=null and TFArea.areaId!=0">
+			and area_id=#{TFArea.areaId}
+		</if>
+	</update>
+</mapper>
+

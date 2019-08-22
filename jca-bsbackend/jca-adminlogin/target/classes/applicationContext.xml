@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="
+		 http://www.springframework.org/schema/beans 
+		 http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		 http://www.springframework.org/schema/aop 
+		 http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		 http://www.springframework.org/schema/context
+		 http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		 http://www.springframework.org/schema/tx
+		 http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		 http://www.springframework.org/schema/mvc
+		 http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		 http://www.springframework.org/schema/task 
+		 http://www.springframework.org/schema/task/spring-task-3.1.xsd
+		 http://www.springframework.org/schema/cache 
+         http://www.springframework.org/schema/cache/spring-cache-3.1.xsd">
+
+	<!-- 扫业务包 注解 -->
+	<context:component-scan base-package="com.jca.adminlogin" />
+	<!-- 扫业务包 注解 -->
+	<context:component-scan base-package="com.jca.adminlogin.timejob" />
+	<!-- 扫描工具模块包下注解 -->
+	<context:component-scan base-package="com.jca.datatool" />
+	<context:component-scan base-package="com.jca.datacommon" />
+	<!-- 設置支持注解 -->
+	<context:annotation-config />
+	<!-- 切面自动代理 -->
+	<!-- 强制使用CGLIB代理 -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	<!-- 支持注解扫描，注解驱动 -->
+	<mvc:annotation-driven />
+	<!-- 支持任务调度注解 -->
+	<task:annotation-driven proxy-target-class="true"/>
+	
+	<!-- <task:scheduled-tasks scheduler="">
+		<task:scheduled ref="" method=""/>
+	</task:scheduled-tasks> -->
+
+	<!--1.引入相关properties文件 -->
+	<context:property-placeholder location="classpath:database.properties" />
+
+	<!-- 2.配置数据源 -->
+	<!-- 如有特殊字符,使用<![CDATA[]]>标记 -->
+	<!-- spring管理多数据源开始 -->
+	<!-- 数据源配置1 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close">
+		<!-- <property name="driverClassName" value="${mysql.driver}" />
+		<property name="url" value="${mysql.jcafaceone.url}" />
+		<property name="username" value="${mysql.user}"></property>
+		<property name="password" value="${mysql.password}" /> -->
+		<!-- 数据库基本信息配置 -->
+		<property name="url" value="${mysql.jcafaceone.url}" />
+		<property name="username" value="${mysql.user}" />
+		<property name="password" value="${mysql.password}" />
+		<property name="driverClassName" value="${mysql.driver}" />
+		<!-- 最大并发连接数 -->
+		<property name="maxActive" value="${maxActive}" />
+		<!-- 初始化连接数量 -->
+		<property name="initialSize" value="${initialSize}" />
+		<!-- 配置获取连接等待超时的时间 -->
+		<property name="maxWait" value="${maxWait}" />
+		<!-- 最小空闲连接数 -->
+		<property name="minIdle" value="${minIdle}" />
+		<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+		<property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
+		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+		<property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
+		<!-- <property name="validationQuery" value="${validationQuery}" /> -->
+		<property name="testWhileIdle" value="${testWhileIdle}" />
+		<!-- <property name="testOnBorrow" value="${testOnBorrow}" /> -->
+		<!-- <property name="testOnReturn" value="${testOnReturn}" /> -->
+		<property name="maxOpenPreparedStatements" value="${maxOpenPreparedStatements}" />
+		<!-- 打开removeAbandoned功能 -->
+		<property name="removeAbandoned" value="${removeAbandoned}" />
+		<!-- 1800秒，也就是30分钟 -->
+		<property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}" />
+		<!-- 关闭abanded连接时输出错误日志 -->
+		<property name="logAbandoned" value="${logAbandoned}" />
+	</bean>
+
+	<!-- 3.配置SqlSessionFactory工厂 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" /><!--ref引用数据源 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml" /><!-- 
+			导入MyBatis的xml配置文件！ -->
+	</bean>
+
+	<!-- 4.配置MapperScannerConfigurer，扫描SQL映射文件，注入扫描映射器 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.jca.datadao" />
+	</bean>
+	<!-- 事务开始 -->
+	<!-- 使用springjdbc模块定义DataSourceTransactionManager事务管理器 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" /><!--ref引用数据源 -->
+	</bean>
+
+	<!-- 支持注解形式 enable transaction annotation support -->
+	<!-- <tx:annotation-driven transaction-manager="txManager" /> -->
+	
+	<!-- 通过<tx:advice>标签为指定的事务管理器设置增强事务属性 -->
+	<!-- transaction-manager引用一个事务管理器 默认为transactionManager -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="remove*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="find*" propagation="SUPPORTS" />
+			<tx:method name="get*" propagation="SUPPORTS" />
+			<tx:method name="*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- springAop管理事务配置 -->
+	<aop:config proxy-target-class="true">
+		<!-- 定义一个切点在目标方法 并命名为pointcut -->
+		<aop:pointcut expression="execution (* com.jca.adminlogin.service.*.*(..))"
+			id="pointcut" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut" />
+	</aop:config>
+	<!-- 事务结束 -->
+
+	<!--redis配置 开始 -->
+	<!-- 初始化jedisPoolConfig配置注入到jedisPool -->
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- <property name="maxActive" value="${redis.maxActive}" />  -->
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<!-- <property name="maxWait" value="${redis.maxWait}" /> -->
+		<property name="testOnBorrow" value="true" />
+	</bean>
+	<!-- Config poolConfig, String host, int port, int timeout, String password, 
+		int database -->
+	<bean id="jedisPool" class="redis.clients.jedis.JedisPool"
+		destroy-method="destroy"><!-- destroy-method指定销毁的方法 -->
+		<constructor-arg ref="jedisPoolConfig"/>
+		<constructor-arg value="${redis.host}"/>
+		<constructor-arg value="${redis.port}"/>
+		<constructor-arg value="${redis.timeout}"/>
+		<constructor-arg value="${redis.pass}"/>
+		<constructor-arg value="${redis.default.db}"/>
+	</bean>
+	<bean id="redisAPI" class="com.jca.datatool.RedisAPI">
+		<property name="jedisPool" ref="jedisPool" />
+	</bean>
+	<!-- Redis配置结束 -->
+	
+	<bean id="jedisConnFactory"
+          class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+          p:host-name="${redis.host}"
+          p:port="${redis.port}"
+          p:password="${redis.pass}"
+          p:use-pool="true"
+    />
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+          p:connection-factory-ref="jedisConnFactory"/>
+</beans>

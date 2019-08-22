@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jca.datadao.TFPropertyMapper">
+	<select id="findDeviceCount" resultType="Integer" parameterType="list">
+		SELECT (SELECT COUNT(0) FROM t_f_device fd WHERE
+		fd.property_no=fp.property_no) AS deviceCount FROM t_f_property fp
+		WHERE fp.property_id IN
+			<foreach collection="ids" item="id" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+	</select>
+</mapper>

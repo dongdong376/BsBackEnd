@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org/DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 配置mybatis的log实现为LOG4J -->
+	<settings>
+		<setting name="logImpl" value="LOG4J" />
+		<setting name="cacheEnabled" value="true" />
+		<setting name="lazyLoadingEnabled" value="true" />
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="useGeneratedKeys" value="false" />
+		<setting name="autoMappingBehavior" value="FULL" /><!-- PARTIAL自动匹配 -->
+		<setting name="defaultExecutorType" value="SIMPLE" />
+		<setting name="defaultStatementTimeout" value="25" />
+		<setting name="safeRowBoundsEnabled" value="false" />
+		<setting name="mapUnderscoreToCamelCase" value="false" />
+		<setting name="localCacheScope" value="SESSION" />
+		<setting name="jdbcTypeForNull" value="OTHER" />
+		<setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString" />
+	</settings>
+	
+	<!-- 配置类型别名 -->
+	<typeAliases>
+		<package name="com.jca.databeans.pojo" />
+	</typeAliases>
+
+	<plugins>
+		<plugin interceptor="com.github.pagehelper.PageInterceptor">
+			<!-- 支持通过Mapper接口参数来传递分页参数 -->
+			<property name="helperDialect" value="mysql" />
+			<property name="supportMethodsArguments" value="true" />
+			<property name="rowBoundsWithCount" value="true" />
+		</plugin>
+	</plugins>
+	
+	<mappers>
+		<!--这是告诉Mybatis区哪找持久化类的映射文件，对于在src下的文件直接写文件名， 如果在某包下，则要写明路径,如：com/mybatistest/config/User.xml -->
+		<!-- 指定xml所在的包名 TFDeviceauthorMapper.xml-->
+		<mapper resource="com/jca/datadao/mapperxml/TFEmployInfoMapper.xml"/>
+		<mapper resource="com/jca/datadao/mapperxml/TFDeviceauthorMapper.xml"/>
+		<mapper resource="com/jca/datadao/mapperxml/TFDepartmentMapper.xml"/>
+	</mappers>
+</configuration>
