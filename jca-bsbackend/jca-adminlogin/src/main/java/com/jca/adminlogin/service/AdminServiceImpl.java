@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSON;
 import com.jca.databeans.pojo.TFOperator;
 import com.jca.datacommon.base.BaseServiceImpl;
 import com.jca.datacommon.log.MethodLog;
+import com.jca.datacommon.tool.StringUtils;
 import com.jca.datadao.TFOperatorMapper;
 import com.jca.datatool.CacheUtil;
 import com.jca.datatool.DateUtil;
@@ -33,12 +34,13 @@ public class AdminServiceImpl extends BaseServiceImpl<TFOperatorMapper, TFOperat
 		operator = tFOperatorMapper.selectOneByCriteria(operator);
 		try {
 			operator.setCreateTime(DateUtil.paseDateformat(operator.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
-			operator.setUpdateTime(DateUtil.paseDateformat(operator.getUpdateTime(), "yyyy-MM-dd HH:mm:ss"));
+			operator.setUpdateTime(StringUtils.isEmpty(operator.getUpdateTime()) ? ""
+					: DateUtil.paseDateformat(operator.getUpdateTime(), "yyyy-MM-dd HH:mm:ss"));
 			if (EmptyUtils.isNotEmpty(operator)) {
 				String userToken = UUIDUtils.generateUUID();
 				map.put("operator", operator);
 				map.put("userToken", userToken);
-				//缓存token
+				// 缓存token
 				CacheUtil.cache.put("userToken-" + operator.getOperatorId(), userToken);
 				redisAPI.set(userToken, 30 * 60 * 60, JSON.toJSONString(operator));
 			}
@@ -47,7 +49,8 @@ public class AdminServiceImpl extends BaseServiceImpl<TFOperatorMapper, TFOperat
 		}
 		return map;
 	}
-	@MethodLog(value="用户修改密码")
+
+	@MethodLog(value = "用户修改密码")
 	@Override
 	public TFOperator updatePassWord(TFOperator operator) {
 		Integer result = tFOperatorMapper.updateOperatorPassWord(operator.getOperatorId(), operator.getPassword());

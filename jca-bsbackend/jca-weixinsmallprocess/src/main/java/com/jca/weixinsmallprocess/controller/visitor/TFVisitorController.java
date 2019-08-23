@@ -59,6 +59,19 @@ public class TFVisitorController {
 			return Result.error("存在异常!");
 		}
 	}
+	
+	@ApiOperation(value = "审核", protocols = "HTTP", produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/checkVisitorInfo")
+	public Result checkVisitorInfo(HttpServletRequest request, @RequestParam(value = "id") Integer id) {
+		try {
+			TFVisitor visitors = tFVisitorService.updateById(null);
+			return Result.success().withData(visitors);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("异常==>" + e.getMessage());
+			return Result.error("存在异常!");
+		}
+	}
 
 	public TFVisitor deal(TFVisitor visitor) {
 		switch (Integer.valueOf(visitor.getCheckState())) {
