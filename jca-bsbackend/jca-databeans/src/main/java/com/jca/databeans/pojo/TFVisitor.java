@@ -25,12 +25,19 @@ public class TFVisitor implements Serializable {
         //自增列
 		@Primary
         private Integer visitorId;
+		@NoColumn
+		private Integer index;
         //访问名称
         private String visitorName;
+        //拒绝缘由
+        private String confuseReason;
+        //访客照片
+        private String visitorPhoto;
         //访问缘由
         private String visitorReason;
         //被访问人
-        private Integer peopleByVisitingId;   
+        private Integer peopleByVisitingId;
+        @NoColumn
         private String propertyNo;
         //检查人
         private String checkNo;

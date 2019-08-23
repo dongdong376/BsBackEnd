@@ -36,10 +36,6 @@
 	<mvc:annotation-driven />
 	<!-- 支持任务调度注解 -->
 	<task:annotation-driven proxy-target-class="true"/>
-	
-	<!-- <task:scheduled-tasks scheduler="">
-		<task:scheduled ref="" method=""/>
-	</task:scheduled-tasks> -->
 
 	<!--1.引入相关properties文件 -->
 	<context:property-placeholder location="classpath:database.properties" />
@@ -50,10 +46,6 @@
 	<!-- 数据源配置1 -->
 	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
 		destroy-method="close">
-		<!-- <property name="driverClassName" value="${mysql.driver}" />
-		<property name="url" value="${mysql.jcafaceone.url}" />
-		<property name="username" value="${mysql.user}"></property>
-		<property name="password" value="${mysql.password}" /> -->
 		<!-- 数据库基本信息配置 -->
 		<property name="url" value="${mysql.jcafaceone.url}" />
 		<property name="username" value="${mysql.user}" />
@@ -71,10 +63,7 @@
 		<property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
 		<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
 		<property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}" />
-		<!-- <property name="validationQuery" value="${validationQuery}" /> -->
 		<property name="testWhileIdle" value="${testWhileIdle}" />
-		<!-- <property name="testOnBorrow" value="${testOnBorrow}" /> -->
-		<!-- <property name="testOnReturn" value="${testOnReturn}" /> -->
 		<property name="maxOpenPreparedStatements" value="${maxOpenPreparedStatements}" />
 		<!-- 打开removeAbandoned功能 -->
 		<property name="removeAbandoned" value="${removeAbandoned}" />

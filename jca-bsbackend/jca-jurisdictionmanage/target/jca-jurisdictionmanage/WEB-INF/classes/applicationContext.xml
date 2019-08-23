@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="
+		 http://www.springframework.org/schema/beans 
+		 http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		 http://www.springframework.org/schema/aop 
+		 http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+		 http://www.springframework.org/schema/context
+		 http://www.springframework.org/schema/context/spring-context-3.2.xsd
+		 http://www.springframework.org/schema/tx
+		 http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+		 http://www.springframework.org/schema/mvc
+		 http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		 http://www.springframework.org/schema/task 
+		 http://www.springframework.org/schema/task/spring-task-3.1.xsd
+		 http://www.springframework.org/schema/cache 
+         http://www.springframework.org/schema/cache/spring-cache-3.1.xsd">
+
+	<!-- 扫业务包 注解 -->
+	<context:component-scan base-package="jca-jurisdictionmanage.service" />
+	<!-- 扫描aop包注解 -->
+	<context:component-scan base-package="jca-jurisdictionmanage.aop" />
+	<!-- 扫描任务包 -->
+	<!-- <context:component-scan base-package="com.jca.peoplemanage.task"/> -->
+	<!-- 扫描工具模块包下注解 -->
+	<context:component-scan base-package="com.jca.datatool" />
+	<!-- 設置支持注解 -->
+	<context:annotation-config />
+	<!-- 切面自动代理 -->
+	<!-- 强制使用CGLIB代理 -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	<!-- 支持注解扫描，注解驱动 -->
+	<mvc:annotation-driven />
+	<!-- 支持任务调度注解 -->
+	<task:annotation-driven proxy-target-class="true"/>
+	
+	<!-- <task:scheduled-tasks scheduler="">
+		<task:scheduled ref="" method=""/>
+	</task:scheduled-tasks> -->
+
+	<!--1.引入相关properties文件 -->
+	<context:property-placeholder location="classpath:database.properties" />
+
+	<!-- 2.配置数据源 -->
+	<!-- 如有特殊字符,使用<![CDATA[]]>标记 -->
+	<!-- spring管理多数据源开始 -->
+	<!-- 数据源配置1 -->
+	<bean id="testDataSource1" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${mysql.driver}" />
+		<property name="url" value="${mysql.test.url}" />
+		<property name="username" value="${mysql.user}"></property>
+		<property name="password" value="${mysql.password}" />
+		<!-- 监控数据库 -->
+		<!-- <property name="proxyFilters"> <list> <ref bean="log-filter" /> </list> 
+			</property> -->
+	</bean>
+	<!-- 数据源配置2 -->
+	<bean id="testDataSource2" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${mysql.driver}" />
+		<property name="url" value="${mysql.log.url}" />
+		<property name="username" value="${mysql.user}"></property>
+		<property name="password" value="${mysql.password}" />
+		<!-- 监控数据库 -->
+		<!-- <property name="proxyFilters"> <list> <ref bean="log-filter"/> </list> 
+			</property> -->
+	</bean>
+	<!-- 编写spring 配置文件的配置多数源映射关系 -->
+	<bean class="com.jca.datacommon.moredatasource.DynamicDataSource"
+		id="dataSource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry value-ref="testDataSource1" key="test" />
+				<entry value-ref="testDataSource2" key="log" />
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="testDataSource1">
+		</property>
+	</bean>
+	<!-- spring管理多数据源结束 -->
+
+	<!-- 3.配置SqlSessionFactory工厂 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" /><!--ref引用数据源 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml" /><!-- 
+			导入MyBatis的xml配置文件！ -->
+	</bean>
+
+	<!-- 4.配置MapperScannerConfigurer，扫描SQL映射文件，注入扫描映射器 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.jca.datadao" />
+	</bean>
+	<!-- 事务开始 -->
+	<!-- 使用springjdbc模块定义DataSourceTransactionManager事务管理器 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" /><!--ref引用数据源 -->
+	</bean>
+
+	<bean id="dataSourceAspect" class="com.jca.datacommon.moredatasource.DataSourceAspect" />
+
+	<!-- 支持注解形式 enable transaction annotation support -->
+	<!-- <tx:annotation-driven transaction-manager="txManager" /> -->
+	<!-- 通过<tx:advice>标签为指定的事务管理器设置增强事务属性 -->
+	<!-- transaction-manager引用一个事务管理器 默认为transactionManager -->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="insert*" propagation="REQUIRED" />
+			<tx:method name="remove*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="find*" propagation="SUPPORTS" />
+			<tx:method name="get*" propagation="SUPPORTS" />
+			<tx:method name="*" propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- springAop管理事务配置 -->
+	<aop:config proxy-target-class="true">
+		<!-- 定义一个切点在目标方法 并命名为pointcut -->
+		<aop:pointcut expression="execution (* com.jca.jurisdictionmanage.service.*.*(..))"
+			id="pointcut" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut"
+			order="2" />
+		<aop:advisor advice-ref="dataSourceAspect" pointcut-ref="pointcut"
+			order="1" />
+	</aop:config>
+	<!-- 事务结束 -->
+
+	<!--redis配置 开始 -->
+	<!-- 初始化jedisPoolConfig配置注入到jedisPool -->
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- <property name="maxActive" value="${redis.maxActive}" /> -->
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<!-- <property name="maxWait" value="${redis.maxWait}" /> -->
+		<property name="testOnBorrow" value="true" />
+	</bean>
+	<!-- Config poolConfig, String host, int port, int timeout, String password, 
+		int database -->
+	<bean id="jedisPool" class="redis.clients.jedis.JedisPool"
+		destroy-method="destroy"><!-- destroy-method指定销毁的方法 -->
+		<constructor-arg ref="jedisPoolConfig" />
+		<constructor-arg value="${redis.host}" />
+		<constructor-arg value="${redis.port}" />
+		<constructor-arg value="${redis.timeout}" />
+		<constructor-arg value="${redis.pass}" />
+		<constructor-arg value="${redis.default.db}" />
+	</bean>
+	<bean id="redisAPI" class="com.jca.datatool.RedisAPI">
+		<property name="jedisPool" ref="jedisPool" />
+	</bean>
+	<!-- Redis配置结束 -->
+
+	<!-- 使用springContext模块中管理缓存开始 -->
+	<!-- 1.启用缓存注解功能，这个是必须的，否则注解不会生效，另外，该注解一定要声明在spring主配置文件中才会生效 -->
+	<cache:annotation-driven cache-manager="ehcacheManager" />
+	<!-- 2.cacheManager工厂类，指定ehcache.xml的位置 -->
+	<bean id="ehcacheManagerFactory"
+		class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation" value="classpath:ehcache.xml" />
+	</bean>
+	<!-- 3.声明cacheManager -->
+	<bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
+		<property name="cacheManager" ref="ehcacheManagerFactory" />
+	</bean>
+	<!-- spring管理缓存结束 -->	
+	
+	<bean id="jedisConnFactory"
+          class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+          p:host-name="${redis.host}"
+          p:port="${redis.port}"
+          p:password="${redis.pass}"
+          p:use-pool="true"
+    />
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+          p:connection-factory-ref="jedisConnFactory"/>
+</beans>

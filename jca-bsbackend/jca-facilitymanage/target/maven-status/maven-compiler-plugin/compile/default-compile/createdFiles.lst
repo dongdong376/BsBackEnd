@@ -1,0 +1,13 @@
+com\jca\facilitymanage\controller\device\TFDeviceController.class
+com\jca\facilitymanage\App.class
+com\jca\facilitymanage\service\area\TFAreaService.class
+com\jca\facilitymanage\service\ServiceInterface.class
+com\jca\facilitymanage\service\device\TFDeviceServiceImpl.class
+com\jca\facilitymanage\service\author\TFDeviceauthorService.class
+com\jca\facilitymanage\controller\author\TFDeviceauthorController.class
+com\jca\facilitymanage\controller\area\TFAreaController.class
+com\jca\facilitymanage\controller\device\TFDeviceController$Temp$TempBuilder.class
+com\jca\facilitymanage\service\area\TFAreaServiceImpl.class
+com\jca\facilitymanage\service\author\TFDeviceauthorServiceImpl.class
+com\jca\facilitymanage\controller\device\TFDeviceController$Temp.class
+com\jca\facilitymanage\service\device\TFDeviceService.class

@@ -1,0 +1,9 @@
+com\jca\jurisdictionmanage\aop\ParamValid.class
+com\jca\jurisdictionmanage\service\logservice\SystemLogService.class
+com\jca\jurisdictionmanage\aop\LogAspect.class
+com\jca\jurisdictionmanage\aop\SystemLogAspect.class
+com\jca\jurisdictionmanage\aop\LogAspect$1.class
+com\jca\jurisdictionmanage\JSONPParser.class
+com\jca\jurisdictionmanage\service\logservice\SystemLogServiceImpl.class
+com\jca\jurisdictionmanage\Test.class
+com\jca\jurisdictionmanage\controller\SwaggerConfig.class

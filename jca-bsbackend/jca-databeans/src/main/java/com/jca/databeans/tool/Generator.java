@@ -38,7 +38,7 @@ public class Generator {
 		//mapper:C:\Users\Administrator\Desktop\Working\jcaWork\jca-bsbackend\jca-datadao\src\main\java\com\jca\datadao\mapperxml
 		//C:\Users\Administrator\Desktop\Working\jcaWork\jca-bsbackend\jca-datadao\src\main\java\com\jca\datadao\mapperxml
 		ClassGenerator classGenerator = new ClassGenerator();
-		MyClass myClass = classGenerator.generateClass("t_f_visitor");
+		MyClass myClass = classGenerator.generateClass("t_f_owner_apply");
 			map.put("myClass", myClass);
 			Writer writer = new OutputStreamWriter(new FileOutputStream(beanPath+ myClass.getClassName() + ".java"));
 			template.process(map, writer);

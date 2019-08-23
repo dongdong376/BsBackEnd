@@ -7,4 +7,5 @@ import com.jca.datacommon.base.BaseService;
 
 public interface TFVisitorService extends BaseService<TFVisitor> {
 	List<TFVisitor> findAllVisitorRecord(Object ...objects);
+	TFVisitor updateVisitor(Object ...objects);
 }

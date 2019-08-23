@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jca.datadao.TFOwnerApplyMapper">
+	<select id="selectOwnerApply" resultMap="TFOwnerApplyMap"
+		parameterType="map">
+		SELECT
+		owner_id AS ownerId,
+		owner_visitor_id AS ownerVisitorTd,
+		owner_apply_date AS ownerApplyDate,
+		owner_check_people AS ownerCheckPeople,
+		fp.property_name AS propertyName,
+		owner_confuse_reason AS ownerConfuseReason,
+		owner_check_state AS ownerCheckState,
+		owner_check_date AS ownerCheckDate
+		FROM
+		t_f_owner_apply fo
+		LEFT JOIN t_f_visitor fv
+		ON fo.owner_visitor_id = fv.visitor_id
+		LEFT JOIN t_f_employ_info fe
+		ON fv.people_by_visiting_id = fe.employ_no
+		LEFT JOIN t_f_property fp
+		ON fp.property_no = fe.property_no
+		<if test="param.propertyNo !=null and param.propertyNo !='-1'">
+			fe.property_no=#{param.propertyNo}
+		</if>
+		<if test="param.ownerId !=null and param.ownerId !='0'">
+			owner_id=#{param.ownerId}
+		</if>
+		LIMIT 0, 1000 ;
+	</select>
+
+	<resultMap type="TFOwnerApply" id="TFOwnerApplyMap">
+		<association property="vAO" javaType="TFVisitor"
+			fetchType="lazy" select="selectVisitor" column="ownerVisitorTd" />
+		<association property="oCAE" javaType="TFEmployInfo"
+			fetchType="lazy" select="selectCheckPeo" column="ownerCheckPeople" />
+	</resultMap>
+	<select id="selectVisitor" resultType="TFVisitor">SELECT
+		visitor_id
+		as
+		visitorId,
+		confuse_reason as confuseReason,
+		visitor_photo as
+		visitorPhoto,
+		visitor_name as visitorName,
+		check_no as checkNo,
+		check_date as checkDate,
+		check_state as checkState,
+		visitor_reason as
+		visitorReason,
+		people_by_visiting_id as peopleByVisitingId,
+		visotor_telephone as visotorTelephone,
+		visitor_card_no as
+		visitorCardNo,
+		begin_date as beginDate,
+		end_date as endDate
+		FROM
+		t_f_visitor where visitor_id=#{ownerVisitorTd}
+	</select>
+	<select id="selectCheckPeo" resultType="TFEmployInfo">SELECT
+		employ_id as
+		employId,
+		employ_no as employNo,
+		employ_name as employName,
+		organ_name as
+		organName,
+		room_no as roomNo,
+		(select
+		department_name from t_f_department
+		fd where 1=1 and
+		fd.department_no=fe.department_no) as departmentName,
+		department_no as departmentNo,
+		area_no as areaNo,
+		fe.secret_key as
+		secretKey,
+		card_no as cardNo,
+		id_card_no as idCardNo,
+		sex,
+		photo as photo,
+		photo_state as photoState,
+		fe.telephone,
+		nation,
+		birth_place as
+		birthPlace,
+		fe.property_no as propertyNo,
+		fp.property_name as
+		propertyName,
+		begin_datetime as beginDatetime,
+		end_datetime as
+		endDatetime,
+		is_submarine_back as isSubmarineBack,
+		is_present as
+		isPresent,
+		fe.is_down as isDown,
+		fe.create_by as createBy,
+		fe.create_time as createTime,
+		fe.update_by as updateBy,
+		fe.update_time
+		as updateTime
+		FROM
+		t_f_employ_info fe,t_f_property fp
+		where
+		fe.property_no=fp.property_no
+		and employ_no=#{ownerCheckPeople}
+	</select>
+</mapper>

@@ -51,13 +51,6 @@
     
     <mappers>
     	<mapper resource="com/jca/datadao/mapperxml/TFOperatorMapper.xml"/>
-    	<mapper resource="com/jca/datadao/mapperxml/TDEmployinfoMapper.xml"/>
-    	<mapper resource="com/jca/datadao/mapperxml/TFAreaMapper.xml"/>
-    	<mapper resource="com/jca/datadao/mapperxml/TFDeviceauthorMapper.xml"/>
-    	<mapper resource="com/jca/datadao/mapperxml/TFDeviceMapper.xml"/>
-    	<mapper resource="com/jca/datadao/mapperxml/TFEmployInfoMapper.xml"/>
-    	<mapper resource="com/jca/datadao/mapperxml/TFEventRecordMapper.xml"/>
-    	<mapper resource="com/jca/datadao/mapperxml/TDEmployinfoMapper.xml"/>
     	<mapper resource="com/jca/datadao/mapperxml/TFPropertyMapper.xml"/>
     </mappers>
 </configuration>

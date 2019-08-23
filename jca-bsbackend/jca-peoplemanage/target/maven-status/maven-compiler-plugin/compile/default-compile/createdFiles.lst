@@ -1,0 +1,14 @@
+com\jca\peoplemanage\inport\TestDbToExcel.class
+com\jca\peoplemanage\service\people\TFEmployInfoServiceImpl.class
+com\jca\peoplemanage\controller\department\TFDepartmentController.class
+com\jca\peoplemanage\inport\StuEntity.class
+com\jca\peoplemanage\controller\people\TFEmployInfoController.class
+com\jca\peoplemanage\service\department\TFDepartmentService.class
+com\jca\peoplemanage\service\author\TFDeviceauthorService.class
+com\jca\peoplemanage\service\department\TFDepartmentServiceImpl.class
+com\jca\peoplemanage\service\author\TFDeviceauthorServiceImpl.class
+com\jca\peoplemanage\inport\StuService.class
+com\jca\peoplemanage\service\people\TFEmployInfoService.class
+com\jca\peoplemanage\inport\DBhepler.class
+com\jca\peoplemanage\App.class
+com\jca\peoplemanage\inport\TestExcelToDb.class

@@ -17,6 +17,7 @@ import com.jca.datadao.TFOperatorMapper;
 import com.jca.datatool.CacheUtil;
 import com.jca.datatool.DateUtil;
 import com.jca.datatool.EmptyUtils;
+import com.jca.datatool.MD5;
 import com.jca.datatool.RedisAPI;
 import com.jca.datatool.UUIDUtils;
 
@@ -37,7 +38,7 @@ public class AdminServiceImpl extends BaseServiceImpl<TFOperatorMapper, TFOperat
 			operator.setUpdateTime(StringUtils.isEmpty(operator.getUpdateTime()) ? ""
 					: DateUtil.paseDateformat(operator.getUpdateTime(), "yyyy-MM-dd HH:mm:ss"));
 			if (EmptyUtils.isNotEmpty(operator)) {
-				String userToken = UUIDUtils.generateUUID();
+				String userToken = MD5.getMd5(operator.getOperatorNo(), 10);
 				map.put("operator", operator);
 				map.put("userToken", userToken);
 				// 缓存token

@@ -44,17 +44,6 @@
 				<entry key="jsonp" value="application/javascript" />
 			</map>
 		</property>
-		<!-- 表示网页试图解析器 -->
-		<property name="viewResolvers">
-			<list>
-				<!-- 使用spring的web模块，JSP技术，实现内部资源视图解析器 -->
-				<bean
-					class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-					<property name="prefix" value="/" />
-					<property name="suffix" value=".jsp" />
-				</bean>
-			</list>
-		</property>
 	</bean>
 
 	<!-- 配置注解驱动 -->

@@ -6,6 +6,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +23,7 @@ import com.jca.datacommon.web.form.AdminLoginForm;
 import com.jca.datacommon.web.form.UpdatePassWordForm;
 import com.jca.datatool.CacheUtil;
 import com.jca.datatool.EmptyUtils;
+import com.jca.datatool.MD5;
 import com.jca.datatool.RedisAPI;
 
 import io.swagger.annotations.Api;
@@ -46,6 +49,8 @@ public class AdminLoginController {
 	private AdminService adminService;
 	@Resource
 	private RedisAPI redisAPI;
+//	@Autowired
+//	private RedisTemplate redisTemplate;
 
 	/**
 	 * 登录
@@ -58,11 +63,8 @@ public class AdminLoginController {
 	public Result login(@RequestParam("json") String loginFormVo, HttpServletRequest request) {
 		try {
 			AdminLoginForm loginForm = JSON.parseObject(loginFormVo, AdminLoginForm.class);
-			long start = System.currentTimeMillis();
 			TFOperator operator = null;
 			Map resultMap = adminService.login(TFOperator.builder().operatorNo(loginForm.getUsername()).build());
-			long end = System.currentTimeMillis();
-			log.info("耗时==>" + (end - start));
 			if (resultMap.containsKey("operator")) {
 				operator = (TFOperator) resultMap.get("operator");
 				if (!operator.getPassword().equals(loginForm.getPassword()))
@@ -72,7 +74,7 @@ public class AdminLoginController {
 			}
 			log.info("远程URI==>" + request.getRequestURI());
 			// 缓存用户
-			CacheUtil.cache.put("operator-" + operator.getOperatorNo(), operator);
+			CacheUtil.cache.put(MD5.getMd5(loginForm.getUsername(), 10), operator);
 			return Result.success("登录成功!").withData(resultMap);
 		} catch (Exception e) {
 			log.error("异常==>" + e.getMessage());
@@ -114,19 +116,29 @@ public class AdminLoginController {
 	 * @return
 	 */
 	@ApiOperation(value = "获取菜单信息信息", protocols = "HTTP", produces = "application/json;charset=UTF-8")
-	@RequestMapping(value = "/getMenus", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
-	public Result getMenus(HttpServletRequest request, @RequestParam(required = false) String token) {
+	@RequestMapping(value = "/getMenus/{date}", produces = "application/json;charset=UTF-8", method = RequestMethod.GET)
+	public Result getMenus(HttpServletRequest request, @PathVariable String date,
+			@RequestParam(required = false) String token) {
 		try {
 			TFOperator operator = null;
 			String usertoken = request.getHeader("usertoken");
 			usertoken = StringUtils.isEmpty(request.getHeader("usertoken")) ? token : request.getHeader("usertoken");
-			if (EmptyUtils.isNotEmpty(usertoken)) {
-				log.info("剩余有效时间==>" + redisAPI.ttl(usertoken));
-				if (redisAPI.ttl(usertoken) == -2)
-					return Result.error("登录已过期，即将返回登录界面!");
-				operator = JSON.parseObject(redisAPI.get(usertoken), TFOperator.class);
-				if (redisAPI.ttl(usertoken) == -1)
-					redisAPI.set(usertoken, 30 * 60, JSON.toJSONString(operator));
+			if (EmptyUtils.isNotEmpty(usertoken)) {							
+				boolean ifhave=true;
+				do {
+					if(EmptyUtils.isNotEmpty(CacheUtil.get(usertoken))) {
+						operator = (TFOperator) CacheUtil.get(usertoken);
+						ifhave=false;
+					}else {
+						if (redisAPI.ttl(usertoken) == -2)
+							return Result.error("登录已过期，即将返回登录界面!");														
+						operator=JSON.parseObject(redisAPI.get(usertoken), TFOperator.class);
+						CacheUtil.cache.put(MD5.getMd5(operator.getOperatorNo(), 10), operator);
+						if (redisAPI.ttl(usertoken) == -1)
+							redisAPI.set(usertoken, 30 * 60, JSON.toJSONString(operator));
+						ifhave=true;
+					}						
+				} while (ifhave);
 				log.info("当前操作用户==>" + operator.getOperatorName());
 				return Result.success().withData(permissionService.saveIdAndPermission(operator.getOperatorId()));
 			}
