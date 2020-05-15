@@ -15,7 +15,7 @@
 		<!-- 资源插件版本 -->
 		<sources.plugin.verion>2.4</sources.plugin.verion>
 		<cas.client.core.version>3.4.1</cas.client.core.version>
-		<jackson.verson>2.8.7</jackson.verson>
+		<jackson.verson>2.11.0</jackson.verson>
 		<!--统一版本管理 -->
 		<mybatis.version>3.4.6</mybatis.version>
 		<!-- mybatis分页插件版本 -->
