@@ -9,7 +9,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- 相关单元测试版本 -->
-		<junit.version>4.1</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<!-- spring框架相关依赖版本 -->
 		<spring.version>4.1.7.RELEASE</spring.version>
 		<!-- 资源插件版本 -->
