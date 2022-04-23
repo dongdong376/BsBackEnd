@@ -11,7 +11,7 @@
 		<!-- 相关单元测试版本 -->
 		<junit.version>4.1</junit.version>
 		<!-- spring框架相关依赖版本 -->
-		<spring.version>4.1.7.RELEASE</spring.version>
+		<spring.version>5.3.19</spring.version>
 		<!-- 资源插件版本 -->
 		<sources.plugin.verion>2.4</sources.plugin.verion>
 		<cas.client.core.version>3.4.1</cas.client.core.version>
