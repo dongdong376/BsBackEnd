@@ -24,7 +24,7 @@
 		<mysql.connector.version>5.1.18</mysql.connector.version>
 		<alibaba.druid.version>1.1.6</alibaba.druid.version>
 		<!--json版本 54 -->
-		<alibaba.fastjson.version>1.2.28</alibaba.fastjson.version>
+		<alibaba.fastjson.version>1.2.83</alibaba.fastjson.version>
 		<!-- mybatis与spring整合版本 -->
 		<mybatis-spring.version>2.0.1</mybatis-spring.version>
 		<!--bean自动生成常用方法注解版本 -->
